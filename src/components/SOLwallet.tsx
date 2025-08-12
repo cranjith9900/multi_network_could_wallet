@@ -8,6 +8,9 @@ import {
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
+  sendAndConfirmTransaction,
+  SystemProgram,
+  Transaction,
 } from "@solana/web3.js";
 type WalletAppProps = {
   mnemonic: string;
@@ -37,11 +40,12 @@ const WalletApp: React.FC<WalletAppProps> = ({
   const [visiblity, setVisiblity] = useState(false);
   const [loading, setLoading] = useState(false);
   const [transPubkey, setTransPubkey] = useState<string>("");
+  const [destPubkey, setDestPubkey] = useState<string>("");
   const [transferAmt, setTransferAmt] = useState<number>(0.5); // in SOL
   const [balance, setBalance] = useState<number>(0);
   // const mainnetRpc =
   //   "";
-  const devnetRpc = "";
+  const devnetRpc = "https://api.devnet.solana.com";
 
   const solanaQuickNode_RPC = net === "mainnet" ? devnetRpc : devnetRpc;
   const refreshBalanceSol = useCallback(async () => {
@@ -107,8 +111,52 @@ const WalletApp: React.FC<WalletAppProps> = ({
 
   // Placeholder function for transferring SOL
   const transferSol = useCallback(async () => {
+    console.log(transPubkey, destPubkey, transferAmt);
+
+    try {
+      const connection = new Connection(solanaQuickNode_RPC);
+
+      // Find the source wallet
+      const fromWallet = wallet.find((w) => w.publicKey === transPubkey);
+      if (!fromWallet) {
+        alert("Source wallet not found");
+        return;
+      }
+
+      // Validate destination public key
+      let destPublicKey: PublicKey;
+      try {
+        destPublicKey = new PublicKey(destPubkey);
+      } catch {
+        alert("Invalid destination public key");
+        return;
+      }
+
+      // Create transaction
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: fromWallet.keypair.publicKey,
+          toPubkey: destPublicKey,
+          lamports: transferAmt * LAMPORTS_PER_SOL,
+        })
+      );
+
+      // Send transaction
+      const signature = await sendAndConfirmTransaction(
+        connection,
+        transaction,
+        [fromWallet.keypair]
+      );
+
+      refreshBalanceSol();
+      alert(`Transaction Successful: ${signature}`);
+      console.log("Transfer Confirmed:", signature);
+    } catch (e) {
+      console.error("Transaction Failed: ", e);
+      alert("Transaction Failed");
+    }
     // TODO: implement transfer SOL logic
-  }, []);
+  }, [wallet, transPubkey, destPubkey, transferAmt, solanaQuickNode_RPC]);
 
   const airDropSol = useCallback(async () => {
     try {
@@ -145,18 +193,40 @@ const WalletApp: React.FC<WalletAppProps> = ({
       <p className="mb-4">Check console for received props.</p>
 
       <div className="flex flex-col gap-2">
+        <input
+          type="text"
+          placeholder="Enter public key"
+          value={transPubkey}
+          onChange={(e) => setTransPubkey(e.target.value)}
+          className="border px-2 py-1 rounded text-white"
+        />
+
         <button
           onClick={() => {
             fetchBalance(transPubkey);
           }}
           className="bg-blue-600 px-3 py-1 rounded"
         >
-          Refresh Balance
+          Fetch Balance
         </button>
 
         <button onClick={addWallet} className="bg-yellow-600 px-3 py-1 rounded">
           Add Wallet
         </button>
+        <div className="mt-4 space-y-2">
+          {wallet.map((wallet, index) => (
+            <div
+              key={index}
+              className="border p-2 rounded bg-gray-100 text-black"
+            >
+              <p>
+                <strong>Wallet {index + 1}</strong>
+              </p>
+              <p>Public Key: {wallet.publicKey}</p>
+              <p>Private Key: {wallet.keypair.secretKey}</p>
+            </div>
+          ))}
+        </div>
         <button
           onClick={transferSol}
           className="bg-purple-600 px-3 py-1 rounded"
@@ -189,6 +259,33 @@ const WalletApp: React.FC<WalletAppProps> = ({
           }}
         >
           Airdrop Sol
+        </button>
+
+        <input
+          type="text"
+          placeholder="Sender Public Key"
+          value={transPubkey}
+          onChange={(e) => setTransPubkey(e.target.value)}
+          className="px-2 py-1 rounded text-white mr-2"
+        />
+        <input
+          type="text"
+          placeholder="Receiver Public Key"
+          value={destPubkey}
+          onChange={(e) => setDestPubkey(e.target.value)}
+          className="px-2 py-1 rounded text-white mr-2"
+        />
+        <input
+          type="number"
+          placeholder="Amount in SOL"
+          onChange={(e) => setTransferAmt(Number(e.target.value))}
+          className="px-2 py-1 rounded text-white mr-2"
+        />
+        <button
+          onClick={transferSol}
+          className="bg-purple-600 px-3 py-1 rounded"
+        >
+          Transfer SOL
         </button>
       </div>
     </div>
