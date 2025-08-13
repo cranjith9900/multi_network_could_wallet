@@ -226,7 +226,7 @@ const WalletApp: React.FC<WalletAppProps> = ({
               });
             }}
           >
-            Airdrop 2 Sol
+            Airdrop 0.5 Sol
           </button>
           {balance !== null && (
             <div className="mt-4">
@@ -263,39 +263,6 @@ const WalletApp: React.FC<WalletAppProps> = ({
             ))}
           </div>
         </div>
-        {/* <button
-          onClick={transferSol}
-          className="bg-purple-600 px-3 py-1 rounded"
-        >
-          Transfer SOL
-        </button> */}
-
-        {/* <input
-          type="text"
-          placeholder="Enter public key"
-          value={transPubkey}
-          onChange={(e) => setTransPubkey(e.target.value)}
-          className="border px-2 py-1 rounded text-white"
-        /> */}
-
-        {/* <button
-          className="text-white w-full lg:w-1/3 bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-3 py-2 text-center ml-2 me-2 mb-3 mt-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800"
-          onClick={() => {
-            if (net === "mainnet") {
-              alert("Not Applicable on Mainnet");
-              return;
-            }
-            setVisible(false);
-            setVisiblity(!visiblity);
-
-            // First do the airdrop, then fetch balance
-            airDropSol().then(() => {
-              fetchBalance(transPubkey);
-            });
-          }}
-        >
-          Airdrop 2 Sol
-        </button> */}
 
         <input
           type="text"
