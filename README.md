@@ -1,69 +1,60 @@
-# React + TypeScript + Vite
+# Multi Network Cloud Wallet (Solana)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React + TypeScript based Solana wallet that supports multiple networks (Mainnet, Devnet, Testnet).  
+Users can **create wallets**, **view public/private keys**, **fetch balances**, **airdrop SOL (non-mainnet)**, and **transfer SOL** — all directly from the browser.
 
-Currently, two official plugins are available:
+🔗 **Live App:** [Multi Network Cloud Wallet](https://stupendous-platypus-58eca4.netlify.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Multi-Network Support**  
+  Switch between Solana Mainnet, Devnet
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Create Wallets**  
+  Generate multiple wallets with public/private keys.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- **View Balances**  
+  Fetch and display balances for any wallet using Helius RPC.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Airdrop SOL (Devnet/Testnet)**  
+  Instantly airdrop SOL for development/testing purposes.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Transfer SOL**  
+  Send SOL between wallets with custom amount input.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Responsive UI**  
+  Mobile and desktop friendly design.
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** React, TypeScript, TailwindCSS
+- **Blockchain SDK:** @solana/web3.js
+- **RPC Provider:** Helius / QuickNode
+- **Bundler:** Vite
+
+---
+
+## 📦 Installation & Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/cranjith9900/multi_network_could_wallet.git
+
+# Navigate into the project
+cd multi_network_could_wallet
+
+# Install dependencies
+npm install
+
+# Run locally
+npm run dev
+
+# Build for production
+npm run build
 ```
