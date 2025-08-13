@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
 import { mnemonicToSeed } from "bip39";
 import { derivePath } from "ed25519-hd-key";
+import bs58 from "bs58";
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -40,6 +41,7 @@ const WalletApp: React.FC<WalletAppProps> = ({
   const [visiblity, setVisiblity] = useState(false);
   const [loading, setLoading] = useState(false);
   const [transPubkey, setTransPubkey] = useState<string>("");
+  const [transPubkey2, setTransPubkey2] = useState<string>("");
   const [destPubkey, setDestPubkey] = useState<string>("");
   const [transferAmt, setTransferAmt] = useState<number>(0.5); // in SOL
   const [balance, setBalance] = useState<number>(0);
@@ -71,7 +73,7 @@ const WalletApp: React.FC<WalletAppProps> = ({
           method: "getBalance",
           params: [pubKey],
         });
-        console.log(response);
+        setBalance(response.data.result.value / LAMPORTS_PER_SOL);
         return response.data.result.value / LAMPORTS_PER_SOL;
       } catch (e) {
         console.log("Error while fetching balance", e);
@@ -81,7 +83,6 @@ const WalletApp: React.FC<WalletAppProps> = ({
     [devnetRpc]
   );
 
-  // Placeholder function for adding wallet
   const addWallet = useCallback(async () => {
     if (mnemonic === "") {
       alert("Empty Seed Phrase");
@@ -95,20 +96,16 @@ const WalletApp: React.FC<WalletAppProps> = ({
     const publicKey = keypair.publicKey.toBase58();
 
     const balance = await fetchBalance(publicKey);
+
+    // This is the correct call to add the wallet to the state.
     setWallet((prevWallets) => [
       ...prevWallets,
       { currentIndex, publicKey, balance, keypair },
     ]);
     console.log("public key", publicKey);
 
-    // Add wallet to state
-    setWallet((prevWallets: WalletInfo[]) => [
-      ...prevWallets,
-      { currentIndex, publicKey, balance, keypair },
-    ]);
     setCurrentIndex((prevIndex) => prevIndex + 1);
   }, [mnemonic, currentIndex, fetchBalance]);
-
   // Placeholder function for transferring SOL
   const transferSol = useCallback(async () => {
     console.log(transPubkey, destPubkey, transferAmt);
@@ -200,50 +197,93 @@ const WalletApp: React.FC<WalletAppProps> = ({
           onChange={(e) => setTransPubkey(e.target.value)}
           className="border px-2 py-1 rounded text-white"
         />
+        <div className="flex flex-row justify-between">
+          <button
+            onClick={() => {
+              fetchBalance(transPubkey);
+            }}
+            className="text-white w-full lg:w-1/3 bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-3 py-2 text-center ml-2 me-2 mb-3 mt-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800"
+          >
+            Fetch Balance
+          </button>
 
-        <button
-          onClick={() => {
-            fetchBalance(transPubkey);
-          }}
-          className="bg-blue-600 px-3 py-1 rounded"
-        >
-          Fetch Balance
-        </button>
+          <button
+            onClick={addWallet}
+            className="text-white w-full lg:w-1/3 bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-3 py-2 text-center ml-2 me-2 mb-3 mt-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800"
+          >
+            Add Wallet
+          </button>
 
-        <button onClick={addWallet} className="bg-yellow-600 px-3 py-1 rounded">
-          Add Wallet
-        </button>
-        <div className="mt-4 space-y-2">
-          {wallet.map((wallet, index) => (
-            <div
-              key={index}
-              className="border p-2 rounded bg-gray-100 text-black"
-            >
-              <p>
-                <strong>Wallet {index + 1}</strong>
-              </p>
-              <p>Public Key: {wallet.publicKey}</p>
-              <p>Private Key: {wallet.keypair.secretKey}</p>
+          <button
+            className="text-white w-full lg:w-1/3 bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-3 py-2 text-center ml-2 me-2 mb-3 mt-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800"
+            onClick={() => {
+              if (net === "mainnet") {
+                alert("Not Applicable on Mainnet");
+                return;
+              }
+              setVisible(false);
+              setVisiblity(!visiblity);
+
+              // First do the airdrop, then fetch balance
+              airDropSol().then(() => {
+                fetchBalance(transPubkey);
+              });
+            }}
+          >
+            Airdrop 2 Sol
+          </button>
+          {balance !== null && (
+            <div className="mt-4">
+              <p>Balance: {balance}</p>
             </div>
-          ))}
+          )}
         </div>
-        <button
+        <div className="mt-6 p-4 bg-black text-white rounded-lg shadow-xl md:p-6 lg:p-8">
+          <h2 className="text-2xl font-bold mb-4 text-center border-b pb-2 border-white md:text-3xl">
+            Your Wallets
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {wallet.map((wallet, index) => (
+              <div
+                key={index}
+                className="bg-gray-900 border border-white rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out break-words"
+              >
+                <p className="text-lg font-semibold mb-2">Wallet {index + 1}</p>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <strong className="font-medium">Public Key:</strong>
+                    <span className="block mt-1 bg-gray-800 p-2 rounded-md font-mono text-xs overflow-x-auto">
+                      {wallet.publicKey}
+                    </span>
+                  </p>
+                  <p>
+                    <strong className="font-medium">Private Key:</strong>
+                    <span className="block mt-1 bg-gray-800 p-2 rounded-md font-mono text-xs overflow-x-auto">
+                      {Buffer.from(wallet.keypair.secretKey).toString("hex")}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* <button
           onClick={transferSol}
           className="bg-purple-600 px-3 py-1 rounded"
         >
           Transfer SOL
-        </button>
+        </button> */}
 
-        <input
+        {/* <input
           type="text"
           placeholder="Enter public key"
           value={transPubkey}
           onChange={(e) => setTransPubkey(e.target.value)}
           className="border px-2 py-1 rounded text-white"
-        />
+        /> */}
 
-        <button
-          className="text-white bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-3 py-2 text-center ml-2 me-2 mb-3 mt-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800"
+        {/* <button
+          className="text-white w-full lg:w-1/3 bg-sky-700 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-3 py-2 text-center ml-2 me-2 mb-3 mt-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-sky-800"
           onClick={() => {
             if (net === "mainnet") {
               alert("Not Applicable on Mainnet");
@@ -258,14 +298,14 @@ const WalletApp: React.FC<WalletAppProps> = ({
             });
           }}
         >
-          Airdrop Sol
-        </button>
+          Airdrop 2 Sol
+        </button> */}
 
         <input
           type="text"
-          placeholder="Sender Public Key"
-          value={transPubkey}
-          onChange={(e) => setTransPubkey(e.target.value)}
+          placeholder="Only add the Wallet generated Sender Public Key with sol airdropped else it will throw error"
+          value={transPubkey2}
+          onChange={(e) => setTransPubkey2(e.target.value)}
           className="px-2 py-1 rounded text-white mr-2"
         />
         <input
@@ -283,7 +323,7 @@ const WalletApp: React.FC<WalletAppProps> = ({
         />
         <button
           onClick={transferSol}
-          className="bg-purple-600 px-3 py-1 rounded"
+          className="bg-purple-600 px-3 py-1 rounded w-full lg:w-1/3"
         >
           Transfer SOL
         </button>

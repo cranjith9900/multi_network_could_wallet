@@ -18,10 +18,10 @@ function App() {
   function switchNet() {
     setNet((prev) => (prev === "devnet" ? "mainnet" : "devnet"));
   }
-
   return (
-    <div className="relative  w-screen flex items-center justify-center overflow-hidden px-2 sm:px-4 bg-transparent">
-      <div className="relative z-10 w-full max-w-md min-w-[520px] bg-white/90 dark:bg-neutral-900/80 rounded-2xl shadow-2xl p-4 sm:p-8 border border-indigo-100 mx-auto backdrop-blur-md">
+    <div className="relative w-screen flex flex-row items-center overflow-hidden px-2 sm:px-4 bg-transparent">
+      {/* Wallet Manager Card */}
+      <div className="relative z-10 w-full max-w-md min-w-[320px] bg-white/90 dark:bg-neutral-900/80 rounded-2xl shadow-2xl p-4 sm:p-8 border border-indigo-100 mx-auto backdrop-blur-md">
         <h2 className="text-xl sm:text-2xl font-bold text-indigo-700 dark:text-indigo-200 mb-4 sm:mb-6 text-center tracking-tight">
           Wallet Manager
         </h2>
@@ -106,9 +106,16 @@ function App() {
             placeholder="Your generated seed phrase"
           />
         </div>
+      </div>
 
-        {/* SOL Wallet Component */}
-        <SOLwallet mnemonic={mnemonic} net={net} refreshCounter={refresh} />
+      {/* Full-Width Solana Wallet Manager */}
+      <div className="mt-8 w-full px-2 sm:px-6">
+        <div className="bg-white/80 dark:bg-neutral-900/80 rounded-2xl shadow-2xl border border-indigo-100 dark:border-indigo-800 p-4 sm:p-6 backdrop-blur-md">
+          <h3 className="text-lg font-semibold mb-4 text-indigo-700 dark:text-indigo-200">
+            Solana Wallet Manager
+          </h3>
+          <SOLwallet mnemonic={mnemonic} net={net} refreshCounter={refresh} />
+        </div>
       </div>
     </div>
   );
