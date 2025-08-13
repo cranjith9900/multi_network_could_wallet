@@ -1,6 +1,6 @@
 # Multi Network Cloud Wallet (Solana)
 
-A React + TypeScript based Solana wallet that supports multiple networks (Mainnet, Devnet, Testnet).  
+A React + TypeScript based Solana wallet that supports multiple networks (Mainnet, Devnet).  
 Users can **create wallets**, **view public/private keys**, **fetch balances**, **airdrop SOL (non-mainnet)**, and **transfer SOL** — all directly from the browser.
 
 🔗 **Live App:** [Multi Network Cloud Wallet](https://stupendous-platypus-58eca4.netlify.app/)
