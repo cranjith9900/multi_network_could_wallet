@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import { mnemonicToSeed } from "bip39";
 import { derivePath } from "ed25519-hd-key";
-import bs58 from "bs58";
+
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -37,9 +37,7 @@ const WalletApp: React.FC<WalletAppProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [wallet, setWallet] = useState<WalletInfo[]>([]);
-  const [visible, setVisible] = useState(false);
-  const [visiblity, setVisiblity] = useState(false);
-  const [loading, setLoading] = useState(false);
+
   const [transPubkey, setTransPubkey] = useState<string>("");
   const [transPubkey2, setTransPubkey2] = useState<string>("");
   const [destPubkey, setDestPubkey] = useState<string>("");
@@ -221,8 +219,6 @@ const WalletApp: React.FC<WalletAppProps> = ({
                 alert("Not Applicable on Mainnet");
                 return;
               }
-              setVisible(false);
-              setVisiblity(!visiblity);
 
               // First do the airdrop, then fetch balance
               airDropSol().then(() => {
